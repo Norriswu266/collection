@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>推薦頁面</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            background: #f7f7f7;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 32px;
+        }
+        h1 {
+            color: #2d7efb;
+            margin-bottom: 24px;
+        }
+        .recommend-list {
+            list-style: none;
+            padding: 0;
+        }
+        .recommend-list li {
+            background: #eaf4ff;
+            margin-bottom: 16px;
+            padding: 18px 24px;
+            border-radius: 8px;
+            font-size: 18px;
+            color: #333;
+            transition: background 0.2s;
+        }
+        .recommend-list li:hover {
+            background: #d0e7ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>推薦頁面</h1>
+        <ul class="recommend-list" id="recommend-list">
+            <li>載入中...</li>
+        </ul>
+        <script>
+            // 從後端 API 取得推薦項目
+            fetch('http://20.255.46.201/api/recommendations')
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById('recommend-list');
+                    list.innerHTML = '';
+                    data.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = item.title;
+                        list.appendChild(li);
+                    });
+                })
+                .catch(() => {
+                    document.getElementById('recommend-list').innerHTML = '<li>無法取得推薦資料</li>';
+                });
+                console.log("CI/CD test");
+        </script>
+    </div>
+</body>
+</html>

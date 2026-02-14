@@ -1,0 +1,9 @@
+# 忽略 node_modules 及相關暫存檔案
+node_modules/
+dist/
+build/
+output/
+.env
+.DS_Store
+npm-debug.log
+yarn-error.log
