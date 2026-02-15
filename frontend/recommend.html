@@ -4,67 +4,140 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>推薦頁面</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             font-family: 'Segoe UI', 'Arial', sans-serif;
-            background: #f7f7f7;
+            background: linear-gradient(135deg, #eaf4ff 0%, #f7f7f7 100%);
             margin: 0;
             padding: 0;
         }
+        .navbar {
+            background: #2d7efb;
+            color: #fff;
+            padding: 16px 0;
+            text-align: center;
+            font-size: 22px;
+            letter-spacing: 2px;
+            box-shadow: 0 2px 8px rgba(45,126,251,0.08);
+        }
         .container {
-            max-width: 600px;
-            margin: 40px auto;
+            max-width: 700px;
+            margin: 48px auto 24px auto;
             background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+            padding: 40px 36px 24px 36px;
         }
         h1 {
             color: #2d7efb;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
+            font-size: 32px;
+            text-align: center;
         }
         .recommend-list {
-            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            justify-content: center;
             padding: 0;
+            margin: 0;
         }
-        .recommend-list li {
+        .recommend-card {
             background: #eaf4ff;
-            margin-bottom: 16px;
-            padding: 18px 24px;
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(45,126,251,0.08);
+            padding: 24px 32px;
+            min-width: 220px;
+            max-width: 260px;
             font-size: 18px;
             color: #333;
-            transition: background 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            transition: background 0.2s, box-shadow 0.2s;
+            position: relative;
         }
-        .recommend-list li:hover {
+        .recommend-card:hover {
             background: #d0e7ff;
+            box-shadow: 0 4px 16px rgba(45,126,251,0.15);
+        }
+        .recommend-title {
+            font-weight: bold;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        .recommend-tags {
+            margin-top: 8px;
+        }
+        .recommend-tag {
+            display: inline-block;
+            background: #2d7efb;
+            color: #fff;
+            border-radius: 6px;
+            padding: 2px 10px;
+            font-size: 14px;
+            margin-right: 6px;
+            margin-bottom: 4px;
+        }
+        .recommend-icon {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 22px;
+            color: #2d7efb;
+        }
+        .footer {
+            text-align: center;
+            color: #888;
+            margin-top: 32px;
+            font-size: 15px;
+        }
         }
     </style>
 </head>
 <body>
+    <div class="navbar">
+        <i class="fa-solid fa-star"></i> 智慧推薦系統
+    </div>
     <div class="container">
         <h1>推薦頁面</h1>
         <ul class="recommend-list" id="recommend-list">
-            <li>載入中...</li>
+            <li class="recommend-card">載入中...</li>
         </ul>
-        <script>
-            // 從後端 API 取得推薦項目
-            fetch('http://20.255.46.201/api/recommendations')
-                .then(res => res.json())
-                .then(data => {
-                    const list = document.getElementById('recommend-list');
-                    list.innerHTML = '';
-                    data.forEach(item => {
-                        const li = document.createElement('li');
-                        li.textContent = item.title;
-                        list.appendChild(li);
-                    });
-                })
-                .catch(() => {
-                    document.getElementById('recommend-list').innerHTML = '<li>無法取得推薦資料</li>';
-                });
-                console.log("CI/CD test");
-        </script>
     </div>
+    <div class="footer">
+        &copy; 2026 智慧推薦系統 | 聯絡我們：info@example.com
+    </div>
+    <script>
+        // 從後端 API 取得推薦項目
+        fetch('http://20.255.46.201/api/recommendations')
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById('recommend-list');
+                list.innerHTML = '';
+                if (!data || !data.length) {
+                    list.innerHTML = '<li class="recommend-card">無推薦資料</li>';
+                    return;
+                }
+                data.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'recommend-card';
+                    li.innerHTML = `
+                        <span class="recommend-icon"><i class="fa-solid fa-thumbs-up"></i></span>
+                        <div class="recommend-title">${item.title}</div>
+                        <div>${item.description || '無描述'}</div>
+                        <div class="recommend-tags">
+                            ${(item.tags || []).map(tag => `<span class="recommend-tag">${tag}</span>`).join('')}
+                        </div>
+                    `;
+                    list.appendChild(li);
+                });
+            })
+            .catch(() => {
+                document.getElementById('recommend-list').innerHTML = '<li class="recommend-card">無法取得推薦資料</li>';
+            });
+        console.log("CI/CD test");
+    </script>
 </body>
 </html>
