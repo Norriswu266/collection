@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/Norriswu266/collection.git
     targetRevision: main
-    path: k8s
+    path: server/K8s
   destination:
     server: https://kubernetes.default.svc
     namespace: default
