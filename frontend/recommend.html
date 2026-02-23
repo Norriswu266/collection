@@ -146,12 +146,12 @@
                 clearError();
                 try {
                     const res = await fetch(API_URL);
-                    if (!res.ok) throw new Error('伺服器回應異常');
+                    if (!res.ok) throw new Error('伺服器回應異常!');
                     const data = await res.json();
                     renderRecommendations(data);
                 } catch (e) {
                     list.innerHTML = '';
-                    showError('無法取得推薦資料，請稍後再試。');
+                    showError('無法取得推薦資料，請稍後再試!');
                 } finally {
                     showSpinner(false);
                 }
