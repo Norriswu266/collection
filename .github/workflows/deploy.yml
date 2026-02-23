@@ -1,0 +1,50 @@
+name: Build and Deploy to AKS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # ===== Build API =====
+      - name: Build and Push API Image
+        run: |
+          az acr build \
+            --registry ${{ secrets.ACR_NAME }} \
+            --image api:latest \
+            ./server
+      # ===== Build Frontend =====
+      - name: Build and Push Frontend Image
+        run: |
+          az acr build \
+            --registry ${{ secrets.ACR_NAME }} \
+            --image frontend:latest \
+            ./frontend
+      # ===== Set AKS Context (重要) =====
+      - name: Set AKS context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: ${{ secrets.RESOURCE_GROUP }}
+          cluster-name: ${{ secrets.AKS_NAME }}
+
+      # ===== Deploy API =====
+      - name: Deploy API
+        run: |
+          kubectl set image deployment/api api=${{ secrets.ACR_NAME }}.azurecr.io/api:latest
+          kubectl rollout status deployment/api
+      # ===== Deploy Frontend =====
+      - name: Deploy Frontend
+        run: |
+          kubectl set image deployment/frontend frontend=${{ secrets.ACR_NAME }}.azurecr.io/frontend:latest
+          kubectl rollout status deployment/frontend
