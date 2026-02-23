@@ -24,6 +24,7 @@ jobs:
             --registry ${{ secrets.ACR_NAME }} \
             --image api:latest \
             ./server
+
       # ===== Build Frontend =====
       - name: Build and Push Frontend Image
         run: |
@@ -31,7 +32,8 @@ jobs:
             --registry ${{ secrets.ACR_NAME }} \
             --image frontend:latest \
             ./frontend
-      # ===== Set AKS Context (重要) =====
+
+      # ===== Set AKS Context =====
       - name: Set AKS context
         uses: azure/aks-set-context@v3
         with:
@@ -43,6 +45,7 @@ jobs:
         run: |
           kubectl set image deployment/api api=${{ secrets.ACR_NAME }}.azurecr.io/api:latest
           kubectl rollout status deployment/api
+
       # ===== Deploy Frontend =====
       - name: Deploy Frontend
         run: |
