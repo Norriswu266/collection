@@ -10,22 +10,25 @@
             background: #f7f7f7;
             margin: 0;
             padding: 0;
+            transition: background 0.3s;
         }
         .container {
             max-width: 600px;
             margin: 40px auto;
             background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+            padding: 40px 24px 32px 24px;
         }
         h1 {
             color: #2d7efb;
             margin-bottom: 24px;
+            letter-spacing: 2px;
         }
         .recommend-list {
             list-style: none;
             padding: 0;
+            margin-bottom: 0;
         }
         .recommend-list li {
             background: #eaf4ff;
@@ -34,10 +37,69 @@
             border-radius: 8px;
             font-size: 18px;
             color: #333;
-            transition: background 0.2s;
+            transition: background 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
         }
         .recommend-list li:hover {
             background: #d0e7ff;
+        }
+        .spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 60px;
+        }
+        .spinner:after {
+            content: '';
+            width: 32px;
+            height: 32px;
+            border: 4px solid #2d7efb;
+            border-top: 4px solid #eaf4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 16px;
+        }
+        @media (max-width: 700px) {
+            .container {
+                max-width: 98vw;
+                padding: 16px 4vw 24px 4vw;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            .recommend-list li {
+                font-size: 16px;
+                padding: 14px 12px;
+            }
+        }
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #181c1f;
+            }
+            .container {
+                background: #23272b;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+            }
+            h1 {
+                color: #6cb6ff;
+            }
+            .recommend-list li {
+                background: #263445;
+                color: #eaf4ff;
+            }
+            .recommend-list li:hover {
+                background: #2d7efb;
+                color: #fff;
+            }
         }
     </style>
 </head>
@@ -45,25 +107,57 @@
     <div class="container">
         <h1>推薦頁面</h1>
         <ul class="recommend-list" id="recommend-list">
-            <li>載入中...</li>
+            <li class="spinner" id="loading-spinner"></li>
         </ul>
+        <div class="error" id="error-message" style="display:none;"></div>
         <script>
-            // 從後端 API 取得推薦項目
-            fetch('http://20.255.46.201/api/recommendations')
-                .then(res => res.json())
-                .then(data => {
-                    const list = document.getElementById('recommend-list');
-                    list.innerHTML = '';
-                    data.forEach(item => {
-                        const li = document.createElement('li');
-                        li.textContent = item.title;
-                        list.appendChild(li);
-                    });
-                })
-                .catch(() => {
-                    document.getElementById('recommend-list').innerHTML = '<li>無法取得推薦資料</li>';
+            const API_URL = 'http://20.255.46.201/api/recommendations';
+            const list = document.getElementById('recommend-list');
+            const spinner = document.getElementById('loading-spinner');
+            const errorMsg = document.getElementById('error-message');
+
+            function showSpinner(show) {
+                spinner.style.display = show ? 'flex' : 'none';
+            }
+            function showError(msg) {
+                errorMsg.textContent = msg;
+                errorMsg.style.display = 'block';
+            }
+            function clearError() {
+                errorMsg.textContent = '';
+                errorMsg.style.display = 'none';
+            }
+
+            function renderRecommendations(data) {
+                list.innerHTML = '';
+                if (!data || !data.length) {
+                    list.innerHTML = '<li>目前沒有推薦項目</li>';
+                    return;
+                }
+                data.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item.title;
+                    list.appendChild(li);
                 });
-                console.log("CI/CD test");
+            }
+
+            async function fetchRecommendations() {
+                showSpinner(true);
+                clearError();
+                try {
+                    const res = await fetch(API_URL);
+                    if (!res.ok) throw new Error('伺服器回應異常');
+                    const data = await res.json();
+                    renderRecommendations(data);
+                } catch (e) {
+                    list.innerHTML = '';
+                    showError('無法取得推薦資料，請稍後再試。');
+                } finally {
+                    showSpinner(false);
+                }
+            }
+
+            fetchRecommendations();
         </script>
     </div>
 </body>
