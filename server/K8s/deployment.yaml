@@ -17,6 +17,6 @@ spec:
       #   - name: acr-auth
       containers:
         - name: api
-          image: norrisacr.azurecr.io/recommend-server:latest
+          image: norrisacr.azurecr.io/api:latest
           ports:
             - containerPort: 3000
