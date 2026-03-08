@@ -1,7 +1,10 @@
 const express = require('express');
 const cors = require('cors');
+const client = require('prom-client');
 const app = express();
 const port = 3000;
+
+client.collectDefaultMetrics();
 
 app.use(cors());
 
@@ -13,6 +16,11 @@ const recommendations = [
     { id: 4, title: '精選網站' },
     { id: 5, title: '熱門應用程式' }
 ];
+
+app.get('/metrics', async (_req, res) => {
+    res.set('Content-Type', client.register.contentType);
+    res.send(await client.register.metrics());
+});
 
 // API 路由
 app.get('/api/recommendations', (req, res) => {
