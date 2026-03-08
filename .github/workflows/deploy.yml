@@ -33,4 +33,15 @@ jobs:
             --image frontend:latest \
             ./frontend
 
-      # ArgoCD 有 selfHeal，偵測到新 image 後會自動部署
+      # ===== Set AKS Context =====
+      - name: Set AKS context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: ${{ secrets.RESOURCE_GROUP }}
+          cluster-name: ${{ secrets.AKS_NAME }}
+
+      # ===== Restart Deployments =====
+      - name: Restart Deployments
+        run: |
+          kubectl rollout restart deployment/api
+          kubectl rollout restart deployment/frontend
