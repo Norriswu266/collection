@@ -13,8 +13,8 @@ spec:
       labels:
         app: api
     spec:
-      imagePullSecrets:
-        - name: acr-auth
+      # imagePullSecrets:
+      #   - name: acr-auth
       containers:
         - name: api
           image: norrisacr.azurecr.io/recommend-server:latest

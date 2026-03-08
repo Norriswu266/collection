@@ -4,161 +4,382 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>推薦頁面</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: 'Segoe UI', 'Arial', sans-serif;
-            background: #f7f7f7;
-            margin: 0;
-            padding: 0;
-            transition: background 0.3s;
-        }
-        .container {
-            max-width: 600px;
-            margin: 40px auto;
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.10);
-            padding: 40px 24px 32px 24px;
-        }
-        h1 {
-            color: #e74c3c;
-            margin-bottom: 24px;
-            letter-spacing: 2px;
-        }
-        .recommend-list {
-            list-style: none;
-            padding: 0;
-            margin-bottom: 0;
-        }
-        .recommend-list li {
-            background: #eaf4ff;
-            margin-bottom: 16px;
-            padding: 18px 24px;
-            border-radius: 8px;
-            font-size: 18px;
-            color: #333;
-            transition: background 0.2s, color 0.2s;
+            font-family: 'Noto Sans TC', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f64f59 100%);
             display: flex;
             align-items: center;
+            justify-content: center;
+            padding: 24px;
         }
-        .recommend-list li:hover {
-            background: #d0e7ff;
+
+        .card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 24px;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 560px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
         }
-        .spinner {
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 3px;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            margin-top: 8px;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .list-item {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+            animation: slideIn 0.4s ease both;
+            position: relative;
+        }
+
+        .list-item:hover {
+            transform: translateX(6px);
+            background: rgba(255,255,255,0.22);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        .list-item.selected {
+            background: rgba(255,255,255,0.28);
+            border-color: rgba(255,255,255,0.6);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            transform: translateX(6px);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ripple */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.35);
+            transform: scale(0);
+            animation: ripple-anim 0.5s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-anim {
+            to { transform: scale(4); opacity: 0; }
+        }
+
+        .item-row {
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .item-num {
+            width: 34px;
+            height: 34px;
+            background: rgba(255,255,255,0.9);
+            color: #764ba2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .list-item.selected .item-num {
+            background: #fff;
+            color: #f64f59;
+        }
+
+        .item-title {
+            color: #fff;
+            font-size: 1.05rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .item-arrow {
+            margin-left: auto;
+            color: rgba(255,255,255,0.5);
+            font-size: 1.2rem;
+            transition: transform 0.3s, color 0.2s;
+        }
+
+        .list-item:hover .item-arrow { color: rgba(255,255,255,0.9); }
+        .list-item.selected .item-arrow {
+            transform: rotate(90deg);
+            color: #fff;
+        }
+
+        /* detail panel */
+        .detail {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, padding 0.3s ease;
+            padding: 0 24px;
+        }
+
+        .detail.open {
+            max-height: 200px;
+            padding: 0 24px 18px 24px;
+        }
+
+        .detail-inner {
+            border-top: 1px solid rgba(255,255,255,0.2);
+            padding-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .detail-tag {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 0.82rem;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-desc {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.88rem;
+            line-height: 1.6;
+        }
+
+        .detail-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+
+        /* Spinner */
+        .spinner-wrap {
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 60px;
+            padding: 40px 0;
         }
-        .spinner:after {
-            content: '';
-            width: 32px;
-            height: 32px;
-            border: 4px solid #2d7efb;
-            border-top: 4px solid #eaf4ff;
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
         }
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
+
+        /* Error */
         .error {
-            color: #e74c3c;
             text-align: center;
-            margin-top: 16px;
+            padding: 32px 0;
         }
-        @media (max-width: 700px) {
-            .container {
-                max-width: 98vw;
-                padding: 16px 4vw 24px 4vw;
-            }
-            h1 {
-                font-size: 1.5rem;
-            }
-            .recommend-list li {
-                font-size: 16px;
-                padding: 14px 12px;
-            }
+
+        .error .error-icon { font-size: 40px; margin-bottom: 12px; }
+        .error p { color: rgba(255,255,255,0.85); font-size: 1rem; margin-bottom: 20px; }
+
+        .retry-btn {
+            background: rgba(255,255,255,0.9);
+            color: #764ba2;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 28px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Noto Sans TC', sans-serif;
+            transition: transform 0.15s, box-shadow 0.15s;
         }
-        @media (prefers-color-scheme: dark) {
-            body {
-                background: #181c1f;
-            }
-            .container {
-                background: #23272b;
-                box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-            }
-            h1 {
-                color: #6cb6ff;
-            }
-            .recommend-list li {
-                background: #263445;
-                color: #eaf4ff;
-            }
-            .recommend-list li:hover {
-                background: #2d7efb;
-                color: #fff;
-            }
+
+        .retry-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 32px;
+            color: rgba(255,255,255,0.45);
+            font-size: 0.78rem;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 600px) {
+            .card { padding: 32px 20px; }
+            h1 { font-size: 1.5rem; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>推薦頁面</h1>
-        <ul class="recommend-list" id="recommend-list">
-            <li class="spinner" id="loading-spinner"></li>
-        </ul>
-        <div class="error" id="error-message" style="display:none;"></div>
-        <script>
-            const API_URL = 'http://20.255.46.201/api/recommendations';
-            const list = document.getElementById('recommend-list');
-            const spinner = document.getElementById('loading-spinner');
-            const errorMsg = document.getElementById('error-message');
+    <div class="card">
+        <div class="header">
+            <span class="icon">✨</span>
+            <h1>精選推薦</h1>
+            <p class="subtitle">為你挑選最值得的內容</p>
+        </div>
 
-            function showSpinner(show) {
-                spinner.style.display = show ? 'flex' : 'none';
-            }
-            function showError(msg) {
-                errorMsg.textContent = msg;
-                errorMsg.style.display = 'block';
-            }
-            function clearError() {
-                errorMsg.textContent = '';
-                errorMsg.style.display = 'none';
-            }
+        <div id="content">
+            <div class="spinner-wrap"><div class="spinner"></div></div>
+        </div>
 
-            function renderRecommendations(data) {
-                list.innerHTML = '';
-                if (!data || !data.length) {
-                    list.innerHTML = '<li>目前沒有推薦項目</li>';
-                    return;
-                }
-                data.forEach(item => {
-                    const li = document.createElement('li');
-                    li.textContent = item.title;
-                    list.appendChild(li);
-                });
-            }
-
-            async function fetchRecommendations() {
-                showSpinner(true);
-                clearError();
-                try {
-                    const res = await fetch(API_URL);
-                    if (!res.ok) throw new Error('伺服器回應異常!');
-                    const data = await res.json();
-                    renderRecommendations(data);
-                } catch (e) {
-                    list.innerHTML = '';
-                    showError('無法取得推薦資料，請稍後再試!');
-                } finally {
-                    showSpinner(false);
-                }
-            }
-
-            fetchRecommendations();
-        </script>
+        <div class="footer">Powered by AKS &nbsp;·&nbsp; ArgoCD</div>
     </div>
+
+    <script>
+        const API_URL = 'http://20.255.46.201/api/recommendations';
+        const content = document.getElementById('content');
+
+        const ICONS = ['📚', '🎬', '🔧', '🌐', '📱', '🎵', '🖼️', '🎮'];
+
+        const DETAILS = [
+            { desc: '精心挑選的優質書單，涵蓋各類知識與文學，拓展你的視野。', tags: ['文學', '知識', '成長'] },
+            { desc: '本季最受好評的電影推薦，橫跨各大類型，每部都值得一看。', tags: ['動作', '劇情', '科幻'] },
+            { desc: '提升工作效率的實用工具合集，讓你的日常更輕鬆自在。', tags: ['生產力', '開發', '設計'] },
+            { desc: '網路上最值得收藏的精選網站，知識與娛樂兼具。', tags: ['學習', '資源', '社群'] },
+            { desc: '榜上有名的熱門 App，涵蓋生活、娛樂與工作各層面。', tags: ['iOS', 'Android', '免費'] },
+            { desc: '本週最熱門的音樂清單，讓你隨時沉浸在最潮的旋律中。', tags: ['流行', '獨立', 'Lo-Fi'] },
+            { desc: '來自世界各地藝術家的精選作品，視覺上的極致享受。', tags: ['插畫', '攝影', '設計'] },
+            { desc: '當紅遊戲推薦，從休閒到硬核都有，找到你的最愛。', tags: ['RPG', '策略', '射擊'] },
+        ];
+
+        let selectedIndex = -1;
+
+        function addRipple(li, e) {
+            const rect = li.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = e.clientX - rect.left - size / 2;
+            const y = e.clientY - rect.top - size / 2;
+            const ripple = document.createElement('span');
+            ripple.className = 'ripple';
+            ripple.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px`;
+            li.appendChild(ripple);
+            ripple.addEventListener('animationend', () => ripple.remove());
+        }
+
+        function renderList(data) {
+            if (!data || !data.length) {
+                content.innerHTML = '<p style="color:rgba(255,255,255,0.7);text-align:center;padding:32px 0;">目前沒有推薦項目</p>';
+                return;
+            }
+            const ul = document.createElement('ul');
+            ul.className = 'list';
+            data.forEach((item, i) => {
+                const detail = DETAILS[i % DETAILS.length];
+                const li = document.createElement('li');
+                li.className = 'list-item';
+                li.style.animationDelay = `${i * 0.07}s`;
+                li.innerHTML = `
+                    <div class="item-row">
+                        <span class="item-num">${i + 1}</span>
+                        <span class="item-title">${ICONS[i % ICONS.length]}&nbsp; ${item.title}</span>
+                        <span class="item-arrow">›</span>
+                    </div>
+                    <div class="detail">
+                        <div class="detail-inner">
+                            <p class="detail-desc">${detail.desc}</p>
+                            <div class="detail-tags">
+                                ${detail.tags.map(t => `<span class="detail-tag">${t}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                li.addEventListener('click', (e) => {
+                    addRipple(li, e);
+                    const isOpen = li.classList.contains('selected');
+                    // 關閉所有
+                    ul.querySelectorAll('.list-item').forEach(el => {
+                        el.classList.remove('selected');
+                        el.querySelector('.detail').classList.remove('open');
+                    });
+                    if (!isOpen) {
+                        li.classList.add('selected');
+                        li.querySelector('.detail').classList.add('open');
+                    }
+                });
+                ul.appendChild(li);
+            });
+            content.innerHTML = '';
+            content.appendChild(ul);
+        }
+
+        function renderError() {
+            content.innerHTML = `
+                <div class="error">
+                    <div class="error-icon">⚠️</div>
+                    <p>無法取得推薦資料，請稍後再試</p>
+                    <button class="retry-btn" onclick="fetchData()">重新載入</button>
+                </div>
+            `;
+        }
+
+        async function fetchData() {
+            content.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+            try {
+                const res = await fetch(API_URL);
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                renderList(data);
+            } catch {
+                renderError();
+            }
+        }
+
+        fetchData();
+    </script>
 </body>
 </html>

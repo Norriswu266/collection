@@ -28,6 +28,6 @@ app.get('/', (req, res) => {
 // });
 
 
-app.listen(port, () => {
-    console.log(`推薦 API 已啟動於 http://localhost:${port}`);
+app.listen(port, "0.0.0.0", () => {
+    console.log(`推薦 API 已啟動於 http://0.0.0.0:${port}`);
 });
