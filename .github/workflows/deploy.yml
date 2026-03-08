@@ -22,7 +22,7 @@ jobs:
         run: |
           az acr build \
             --registry ${{ secrets.ACR_NAME }} \
-            --image api:latest \
+            --image api:${{ github.sha }} \
             ./server
 
       # ===== Build Frontend =====
@@ -30,7 +30,7 @@ jobs:
         run: |
           az acr build \
             --registry ${{ secrets.ACR_NAME }} \
-            --image frontend:latest \
+            --image frontend:${{ github.sha }} \
             ./frontend
 
       # ===== Set AKS Context =====
@@ -40,8 +40,14 @@ jobs:
           resource-group: ${{ secrets.RESOURCE_GROUP }}
           cluster-name: ${{ secrets.AKS_NAME }}
 
-      # ===== Restart Deployments =====
-      - name: Restart Deployments
+      # ===== Deploy API =====
+      - name: Deploy API
         run: |
-          kubectl rollout restart deployment/api
-          kubectl rollout restart deployment/frontend
+          kubectl set image deployment/api api=${{ secrets.ACR_NAME }}.azurecr.io/api:${{ github.sha }}
+          kubectl rollout status deployment/api
+
+      # ===== Deploy Frontend =====
+      - name: Deploy Frontend
+        run: |
+          kubectl set image deployment/frontend frontend=${{ secrets.ACR_NAME }}.azurecr.io/frontend:${{ github.sha }}
+          kubectl rollout status deployment/frontend
