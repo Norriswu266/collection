@@ -6,7 +6,24 @@ const port = 3000;
 
 client.collectDefaultMetrics();
 
+const httpRequestsTotal = new client.Counter({
+    name: 'http_requests_total',
+    help: 'Total number of HTTP requests',
+    labelNames: ['method', 'route', 'status_code'],
+});
+
 app.use(cors());
+
+app.use((req, res, next) => {
+    res.on('finish', () => {
+        httpRequestsTotal.inc({
+            method: req.method,
+            route: req.path,
+            status_code: res.statusCode,
+        });
+    });
+    next();
+});
 
 // 推薦項目資料
 const recommendations = [
