@@ -21,6 +21,7 @@ jobs:
           az acr build \
             --registry ${{ secrets.ACR_NAME }} \
             --image api:${{ github.sha }} \
+            --image api:latest \
             ./server
 
   build-frontend:
@@ -38,6 +39,7 @@ jobs:
           az acr build \
             --registry ${{ secrets.ACR_NAME }} \
             --image frontend:${{ github.sha }} \
+            --image frontend:latest \
             ./frontend
 
   deploy:
