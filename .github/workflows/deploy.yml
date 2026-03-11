@@ -9,10 +9,10 @@ jobs:
   build-api:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Login to Azure
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -26,10 +26,10 @@ jobs:
   build-frontend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Login to Azure
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -45,22 +45,20 @@ jobs:
     needs: [build-api, build-frontend]
     steps:
       - name: Login to Azure
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Set AKS context
-        uses: azure/aks-set-context@v3
-        with:
-          resource-group: ${{ secrets.RESOURCE_GROUP }}
-          cluster-name: ${{ secrets.AKS_NAME }}
-
       - name: Deploy API
         run: |
-          kubectl set image deployment/api api=${{ secrets.ACR_NAME }}.azurecr.io/api:${{ github.sha }}
-          kubectl rollout status deployment/api
+          az aks command invoke \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --name ${{ secrets.AKS_NAME }} \
+            --command "kubectl set image deployment/api api=${{ secrets.ACR_NAME }}.azurecr.io/api:${{ github.sha }} && kubectl rollout status deployment/api"
 
       - name: Deploy Frontend
         run: |
-          kubectl set image deployment/frontend frontend=${{ secrets.ACR_NAME }}.azurecr.io/frontend:${{ github.sha }}
-          kubectl rollout status deployment/frontend
+          az aks command invoke \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --name ${{ secrets.AKS_NAME }} \
+            --command "kubectl set image deployment/frontend frontend=${{ secrets.ACR_NAME }}.azurecr.io/frontend:${{ github.sha }} && kubectl rollout status deployment/frontend"
