@@ -21,6 +21,6 @@ spec:
       #   - name: acr-auth
       containers:
         - name: api
-          image: norrisacr.azurecr.io/api:3c22982724c146dfb94306819977903b027a50f0
+          image: norrisacr.azurecr.io/api:f292fa402b6e30b55a1befab03881b758ab8a75c
           ports:
             - containerPort: 3000
