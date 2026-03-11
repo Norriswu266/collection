@@ -48,6 +48,11 @@ app.get('/', (req, res) => {
   res.send('Hello AKS 🚀')
 })
 
+// 測試用：模擬 500 錯誤
+app.get('/test/error', (req, res) => {
+  res.status(500).json({ error: 'Internal Server Error' });
+})
+
 // app.listen(port, () => {
 //     console.log(`推薦 API 已啟動於 http://localhost:${port}`);
 // });
