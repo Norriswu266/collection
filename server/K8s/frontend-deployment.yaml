@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: norrisacr.azurecr.io/frontend:latest
+          image: norrisacr.azurecr.io/frontend:3c22982724c146dfb94306819977903b027a50f0
           imagePullPolicy: Always
           ports:
             - containerPort: 80
