@@ -122,8 +122,8 @@ flowchart TD
 
 ### 流程說明
 
-1. **推 code** → GitHub Actions 同時 build API + Frontend image
-2. **image** 推到 Azure ACR
-3. **ArgoCD** 偵測到 repo 的 K8s manifest 有變更，自動 sync 到 AKS
-4. **AKS** 從 ACR pull 新 image，更新 pod
-5. **Prometheus** 定期抓 API 的 `/metrics`，**Grafana** 視覺化呈現
+本地開發 → push to GitHub
+→ GitHub Actions build image → push 到 ACR
+→ ArgoCD 偵測 manifest 變更 → sync 到 AKS
+→ AKS 從 ACR pull 新 image，更新 pod
+→ Prometheus 持續 scrape → Grafana 顯示
