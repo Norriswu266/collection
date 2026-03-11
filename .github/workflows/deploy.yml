@@ -46,21 +46,17 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-api, build-frontend]
     steps:
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - uses: actions/checkout@v4
 
-      - name: Deploy API
+      - name: Update image tags in manifests
         run: |
-          az aks command invoke \
-            --resource-group ${{ secrets.RESOURCE_GROUP }} \
-            --name ${{ secrets.AKS_NAME }} \
-            --command "kubectl set image deployment/api api=${{ secrets.ACR_NAME }}.azurecr.io/api:${{ github.sha }} && kubectl rollout status deployment/api"
+          sed -i "s|norrisacr.azurecr.io/api:.*|norrisacr.azurecr.io/api:${{ github.sha }}|" server/K8s/deployment.yaml
+          sed -i "s|norrisacr.azurecr.io/frontend:.*|norrisacr.azurecr.io/frontend:${{ github.sha }}|" server/K8s/frontend-deployment.yaml
 
-      - name: Deploy Frontend
+      - name: Commit and push updated manifests
         run: |
-          az aks command invoke \
-            --resource-group ${{ secrets.RESOURCE_GROUP }} \
-            --name ${{ secrets.AKS_NAME }} \
-            --command "kubectl set image deployment/frontend frontend=${{ secrets.ACR_NAME }}.azurecr.io/frontend:${{ github.sha }} && kubectl rollout status deployment/frontend"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add server/K8s/deployment.yaml server/K8s/frontend-deployment.yaml
+          git commit -m "ci: update image tags to ${{ github.sha }}"
+          git push
