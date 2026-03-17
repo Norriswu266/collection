@@ -50,9 +50,16 @@ flowchart TD
 
 ### 流程說明
 
-本地開發 → push to GitHub
-→ GitHub Actions build image → push 到 ACR
-→ ArgoCD 偵測 manifest 變更 → sync 到 AKS
-→ AKS 從 ACR pull 新 image，更新 pod
-→ Prometheus 持續 scrape → Grafana 顯示
+```mermaid
+flowchart LR
+    A["👨‍💻 本地開發"] -->|"① git push"| B["GitHub"]
+    B -->|"② 觸發"| C["GitHub Actions\nbuild & push image"]
+    C -->|"③ push image"| D["ACR"]
+    C -->|"④ 更新 image tag\n寫回 manifest"| B
+    B -->|"⑤ 偵測 manifest 變更"| E["ArgoCD"]
+    E -->|"⑥ sync"| F["AKS\n更新 Pod"]
+    D -->|"⑦ pull image"| F
+    F -->|"⑧ scrape /metrics"| G["Prometheus"]
+    G -->|"⑨ 視覺化"| H["Grafana"]
+```
 
