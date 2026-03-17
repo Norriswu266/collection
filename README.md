@@ -57,8 +57,8 @@ flowchart LR
     C -->|"③ push image"| D["ACR"]
     C -->|"④ 更新 image tag\n寫回 manifest"| B
     B -->|"⑤ 偵測 manifest 變更"| E["ArgoCD"]
-    E -->|"⑥ sync"| F["AKS\n更新 Pod"]
-    D -->|"⑦ pull image"| F
+    E -->|"⑥ sync 觸發"| D
+    D -->|"⑦ pull image"| F["AKS\n更新 Pod"]
     F -->|"⑧ scrape /metrics"| G["Prometheus"]
     G -->|"⑨ 視覺化"| H["Grafana"]
 ```
